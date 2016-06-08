@@ -6,9 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Client-side Hash Calculator</title>
     <script>
-    function sha256(str) {
-      // We transform the string into an arraybuffer.
-      var buffer = new TextEncoder("utf-8").encode(str);
+    function sha256buffer(buffer) {
       return crypto.subtle.digest("SHA-256", buffer);
     };
 
@@ -29,16 +27,28 @@
       return hexCodes.join("");
     };
 
-    // Hash and print a test string.
-    var stringToHash = 'hashme\n';
-    sha256(stringToHash)
-      .then(function(hashArray) {
-        console.log(hex(hashArray));
-      }).catch(function(err) {
-        console.log(err)
-      });   
+    // Print the hash of a local file
+    window.addEventListener("load", function () {
+      document.getElementById('fileinput').addEventListener('change', function(){
+        var file = this.files[0];
+
+        var fileReader = new FileReader();
+        fileReader.onload = function() {
+          sha256buffer(this.result)
+          .then(function(hashArray) {
+            console.log(hex(hashArray));
+          }).catch(function(err) {
+            console.log(err)
+          });   
+        };
+
+        fileReader.readAsArrayBuffer(file);
+      });
+    });
+     
     </script>
   </head>
   <body>
+    <input type="file" id="fileinput" />
   </body>
 </html>
