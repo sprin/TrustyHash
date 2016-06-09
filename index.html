@@ -5,6 +5,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Client-side Hash Calculator</title>
+    <style>
+      #uri {
+          width: 400px;
+      }
+    </style>
     <script>
     function sha256buffer(buffer) {
       return crypto.subtle.digest("SHA-256", buffer);
@@ -27,6 +32,17 @@
       return hexCodes.join("");
     };
 
+    function getRemoteResource(uri, success, error) {
+      var xhr = new XMLHttpRequest();
+      xhr.responseType = 'arraybuffer';
+      xhr.addEventListener('load', function(event) {
+        success(this.response);
+      });
+      xhr.addEventListener('error', error);
+      xhr.open('GET', uri);
+      xhr.send();
+    };
+
     // Print the hash of a local file
     window.addEventListener("load", function () {
       document.getElementById('fileinput').addEventListener('change', function(){
@@ -39,18 +55,51 @@
             var sha256 = hex(hashArray);
             document.getElementById('sha256-hash').innerText = sha256;
           }).catch(function(err) {
-            console.log(err)
+            document.getElementById('errors').innerText = 'Error hashing file';
           });   
         };
 
         fileReader.readAsArrayBuffer(file);
       });
-    });
+
+      // Fetch the remote resource upon submit
+      var form = document.getElementById('uri-form');
+
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        var uri = document.getElementById('uri').value;
+
+        var success = function(buffer) {
+          sha256buffer(buffer)
+          .then(function(hashArray) {
+            var sha256 = hex(hashArray);
+            document.getElementById('sha256-hash').innerHTML =
+              '<em>SHA-256 Hash</em><br>' + sha256;
+          }).catch(function(err) {
+            document.getElementById('errors').innerText = 'Error hashing file';
+          });
+        };
+        var error = function() {
+          document.getElementById('errors').innerText =
+            'Problem fetching ' + uri + '. If this URL is valid, the remote '
+            + 'server probably does not allow cross-domain requests.';
+        };
+        getRemoteResource(uri, success, error);
+      });
      
+    });
+
     </script>
   </head>
   <body>
-    <input type="file" id="fileinput" />
-    <div id="sha256-hash"></div>
+    <form action="" id="uri-form" name="uri-form">
+      <p>Enter URL <input id="uri"></input>
+      <input type="submit" value="Submit"></p>
+    </form>
+    <p>&lt; or &gt;
+    <p>Choose file <input type="file" id="fileinput" />
+    <br>
+    <p id="sha256-hash"></p>
+    <p id="errors"></p>
   </body>
 </html>
