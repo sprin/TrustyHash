@@ -6,8 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Client-side Hash Calculator</title>
     <style>
+      html {
+        box-sizing: border-box;
+      }
+      *, *:before, *:after {
+        box-sizing: inherit;
+      }
       #uri {
           width: 400px;
+      }
+      #drop-area {
+        width: 96%;
+        margin: 2%;
+        border: solid #000 1px;
+        padding: 20px;
+        text-align: center;
       }
     </style>
     <script>
@@ -43,23 +56,31 @@
       xhr.send();
     };
 
+    function hashSuccess(hashArray) {
+      var sha256 = hex(hashArray);
+      document.getElementById('sha256-hash').innerHTML =
+        '<em>SHA-256 Hash</em><br>' + sha256;
+    };
+
+    function hashError(err) {
+      document.getElementById('errors').innerText = 'Error hashing file';
+    };
+
+    function hashFile(file) {
+        var fileReader = new FileReader();
+        fileReader.onload = function() {
+          sha256buffer(this.result)
+          .then(hashSuccess)
+          .catch(hashError)
+        };
+        fileReader.readAsArrayBuffer(file);
+    };
+
     // Print the hash of a local file
     window.addEventListener("load", function () {
       document.getElementById('fileinput').addEventListener('change', function(){
         var file = this.files[0];
-
-        var fileReader = new FileReader();
-        fileReader.onload = function() {
-          sha256buffer(this.result)
-          .then(function(hashArray) {
-            var sha256 = hex(hashArray);
-            document.getElementById('sha256-hash').innerText = sha256;
-          }).catch(function(err) {
-            document.getElementById('errors').innerText = 'Error hashing file';
-          });   
-        };
-
-        fileReader.readAsArrayBuffer(file);
+        hashFile(file);
       });
 
       // Fetch the remote resource upon submit
@@ -69,26 +90,31 @@
         event.preventDefault();
         var uri = document.getElementById('uri').value;
 
-        var success = function(buffer) {
+        var getSuccess = function(buffer) {
           sha256buffer(buffer)
-          .then(function(hashArray) {
-            var sha256 = hex(hashArray);
-            document.getElementById('sha256-hash').innerHTML =
-              '<em>SHA-256 Hash</em><br>' + sha256;
-          }).catch(function(err) {
-            document.getElementById('errors').innerText = 'Error hashing file';
-          });
+          .then(hashSuccess)
+          .catch(hashError)
         };
-        var error = function() {
+        var getError = function() {
           document.getElementById('errors').innerText =
             'Problem fetching ' + uri + '. If this URL is valid, the remote '
             + 'server probably does not allow cross-domain requests.';
         };
-        getRemoteResource(uri, success, error);
+        getRemoteResource(uri, getSuccess, getError);
+      });
+
+      var dropArea = document.getElementById('drop-area');
+      dropArea.addEventListener('dragover', function(evt) {
+        evt.preventDefault();
+        evt.dataTransfer.dropEffect = 'copy';
+      });
+      dropArea.addEventListener('drop', function(evt) {
+        evt.preventDefault();
+        var file = evt.dataTransfer.files[0];
+        hashFile(file);
       });
      
     });
-
     </script>
   </head>
   <body>
@@ -97,6 +123,7 @@
       <input type="submit" value="Submit"></p>
     </form>
     <p>&lt; or &gt;
+    <div id="drop-area">Drop file here, or click to browse</div>
     <p>Choose file <input type="file" id="fileinput" />
     <br>
     <p id="sha256-hash"></p>
