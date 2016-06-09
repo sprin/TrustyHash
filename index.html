@@ -22,6 +22,9 @@
         padding: 20px;
         text-align: center;
       }
+      #fileinput {
+          float: right;
+      }
     </style>
     <script>
     function sha256buffer(buffer) {
@@ -113,6 +116,14 @@
         var file = evt.dataTransfer.files[0];
         hashFile(file);
       });
+      dropArea.addEventListener('click', function(evt) {
+        evt.preventDefault();
+        var fileinput = document.getElementById('fileinput');
+        var doc = fileinput.ownerDocument;
+        var fileinputClick = doc.createEvent("MouseEvents");
+        fileinputClick.initEvent('click', true, true);
+        fileinput.dispatchEvent(fileinputClick, true);
+      });
      
     });
     </script>
@@ -124,7 +135,7 @@
     </form>
     <p>&lt; or &gt;
     <div id="drop-area">Drop file here, or click to browse</div>
-    <p>Choose file <input type="file" id="fileinput" />
+    <p><input type="file" id="fileinput" />
     <br>
     <p id="sha256-hash"></p>
     <p id="errors"></p>
