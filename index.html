@@ -36,7 +36,8 @@
         fileReader.onload = function() {
           sha256buffer(this.result)
           .then(function(hashArray) {
-            console.log(hex(hashArray));
+            var sha256 = hex(hashArray);
+            document.getElementById('sha256-hash').innerText = sha256;
           }).catch(function(err) {
             console.log(err)
           });   
@@ -50,5 +51,6 @@
   </head>
   <body>
     <input type="file" id="fileinput" />
+    <div id="sha256-hash"></div>
   </body>
 </html>
