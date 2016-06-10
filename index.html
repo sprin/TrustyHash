@@ -33,7 +33,7 @@
       }
       #drop-area {
         width: 96%;
-        margin: 1% 2% 1% 2%;
+        margin: 0.5em 1em 0.5em 1em;
         border: solid #000 1px;
         padding: 2em;
         text-align: center;
@@ -41,6 +41,9 @@
       }
       #fileinput {
           margin-left: 75%;
+      }
+      #save-file {
+        visibility: hidden;
       }
       [data-tooltip] {
         border-bottom: 1px dotted #000;
@@ -98,12 +101,20 @@
       return hexCodes.join("");
     };
 
+    function bufferToBase64(buffer) {
+      var str = '';
+      var bytes = new Uint8Array(buffer);
+      var len = bytes.byteLength;
+      for (var i = 0; i < len; i++) {
+          str += String.fromCharCode(bytes[i]);
+      }
+      return window.btoa(str);
+    }
+
     function getRemoteResource(uri, success, error) {
       var xhr = new XMLHttpRequest();
       xhr.responseType = 'arraybuffer';
-      xhr.addEventListener('load', function(event) {
-        success(this.response);
-      });
+      xhr.addEventListener('load', success);
       xhr.addEventListener('error', error);
       xhr.open('GET', uri);
       xhr.send();
@@ -139,14 +150,40 @@
       // Fetch the remote resource upon submit
       var form = document.getElementById('uri-form');
 
+      var clickSave;
       form.addEventListener("submit", function (event) {
         event.preventDefault();
+        // Try to determine a reasonable name for the file if the user wants
+        // to save it locally.
         var uri = document.getElementById('uri').value;
+        var noprefix = uri.replace(/^http:\/\/|^https:\/\//, '')
+        var parts = noprefix.split('/');
+        if (parts.length > 1 && parts[parts.length != '']) {
+          var filename = parts[parts.length - 1];
+        } else {
+          // Assume that if there is no part after hostname, or no part after
+          // the final '/', then this must be an html file.
+          filename = noprefix + '.html';
+        }
 
-        var getSuccess = function(buffer) {
-          sha256buffer(buffer)
+        var getSuccess = function(evt) {
+          var xhr = this;
+          sha256buffer(xhr.response)
           .then(hashSuccess)
           .catch(hashError)
+          var saveFile = document.getElementById('save-file');
+          saveFile.style.visibility='visible';
+          // Unbind previous Save File handler, if any.
+          saveFile.removeEventListener('click', clickSave);
+          clickSave = function() {
+            var link = document.createElement('a');
+            link.download = filename;
+            link.href = 'data:Application/octet-stream;base64,'
+              + bufferToBase64(xhr.response);
+            document.body.appendChild(link);
+            link.click();
+          };
+          saveFile.addEventListener('click', clickSave);
         };
         var getError = function() {
           document.getElementById('errors').innerText =
@@ -174,6 +211,7 @@
         fileinputClick.initEvent('click', true, true);
         fileinput.dispatchEvent(fileinputClick, true);
       });
+
      
     });
     </script>
@@ -184,11 +222,12 @@
     <h2>Hash a File from Your Computer</h2>
     <div id="drop-area">Drop file here, or click to browse</div>
     <p><input type="file" id="fileinput" />
-    <h2>Hash a File from Website</h2>
+    <h2>Hash a File from a Website</h2>
     <p><a href="#" class="tooltip" data-tooltip="Websites which enable Cross Origin Resource Sharing (CORS) can be accessed by this tool. However, most websites do not enable CORS.">Certain websites</a> may allow this tool to retrieve a file directly, without you having to save it to your computer first.
     <form action="" id="uri-form" name="uri-form">
       <p>URL: <input id="uri"></input>
-      <input type="submit" value="Submit"></p>
+      <input type="submit" value="Submit">
+      <input id="save-file" type="button" value="Save File">
     </form>
     <div id="sha256-hash"></div>
     <div id="errors"></p>
