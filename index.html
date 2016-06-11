@@ -27,7 +27,7 @@
         font-size: 18px;
         margin: 0.2em 0 0.2em 0;
       }
-      #uri {
+      #url {
           width: 450px;
           margin: 0.8em 0 0.2em 0;
       }
@@ -80,140 +80,176 @@
       }
     </style>
     <script>
-    function sha256buffer(buffer) {
-      return crypto.subtle.digest("SHA-256", buffer);
-    };
+window.addEventListener("load", function () {
+  // Compute the hash when a selection is made with the file input
+  document.getElementById('fileinput').addEventListener(
+    'change', handleFileInputChange);
 
-    // From https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest
-    function hex(buffer) {
-      var hexCodes = [];
-      var view = new DataView(buffer);
-      for (var i = 0; i < view.byteLength; i += 4) {
-        // Using getUint32 reduces the number of iterations needed (we process 4 bytes each time)
-        var value = view.getUint32(i)
-        // toString(16) will give the hex representation of the number without padding
-        var stringValue = value.toString(16)
-        // We use concatenation and slice for padding
-        var padding = '00000000'
-        var paddedValue = (padding + stringValue).slice(-padding.length)
-        hexCodes.push(paddedValue);
-      }
-      return hexCodes.join("");
-    };
+  // Compute the hash when a file is dropped into the drop area
+  var dropArea = document.getElementById('drop-area');
+  dropArea.addEventListener('dragover', handleDropAreaDragover)
+  dropArea.addEventListener('drop', handleDropAreaDrop)
 
-    function bufferToBase64(buffer) {
-      var str = '';
-      var bytes = new Uint8Array(buffer);
-      var len = bytes.byteLength;
-      for (var i = 0; i < len; i++) {
-          str += String.fromCharCode(bytes[i]);
-      }
-      return window.btoa(str);
-    }
+  // Open the file input prompt when the drop area is clicked
+  dropArea.addEventListener('click', handleDropAreaClick);
 
-    function getRemoteResource(uri, success, error) {
-      var xhr = new XMLHttpRequest();
-      xhr.responseType = 'arraybuffer';
-      xhr.addEventListener('load', success);
-      xhr.addEventListener('error', error);
-      xhr.open('GET', uri);
-      xhr.send();
-    };
+  // Fetch the remote resource upon submit, and hash if fetch succeeds.
+  var form = document.getElementById('url-form');
+  form.addEventListener("submit", handleURLSubmit);
+});
 
-    function hashSuccess(hashArray) {
-      var sha256 = hex(hashArray);
-      document.getElementById('sha256-hash').innerHTML =
-        '<h2>SHA-256 Hash</h2><p>' + sha256;
-    };
+// Event handlers
 
-    function hashError(err) {
-      document.getElementById('errors').innerText = 'Error hashing file';
-    };
+function handleFileInputChange() {
+  // Hash a local file when selected via file input.
+  var fileinput = this;
+  var file = fileinput.files[0];
+  hashFile(file);
+}
 
-    function hashFile(file) {
-        var fileReader = new FileReader();
-        fileReader.onload = function() {
-          sha256buffer(this.result)
-          .then(hashSuccess)
-          .catch(hashError)
-        };
-        fileReader.readAsArrayBuffer(file);
-    };
+function handleDropAreaDragover(evt) {
+  // Set up the drop area.
+  evt.preventDefault();
+  evt.dataTransfer.dropEffect = 'copy';
+}
 
-    // Print the hash of a local file
-    window.addEventListener("load", function () {
-      document.getElementById('fileinput').addEventListener('change', function(){
-        var file = this.files[0];
-        hashFile(file);
-      });
+function handleDropAreaDrop(evt) {
+  // Open the file input prompt when the drop area is clicked
+  evt.preventDefault();
+  var file = evt.dataTransfer.files[0];
+  hashFile(file);
+}
 
-      // Fetch the remote resource upon submit
-      var form = document.getElementById('uri-form');
+function handleDropAreaClick (evt) {
+  // Show the 
+  evt.preventDefault();
+  var doc = document.getElementById('fileinput').ownerDocument;
+  var fileinputClick = doc.createEvent('MouseEvents');
+  fileinputClick.initEvent('click', true, true);
+  fileinput.dispatchEvent(fileinputClick, true);
+}
 
-      var clickSave;
-      form.addEventListener("submit", function (event) {
-        event.preventDefault();
-        // Try to determine a reasonable name for the file if the user wants
-        // to save it locally.
-        var uri = document.getElementById('uri').value;
-        var noprefix = uri.replace(/^http:\/\/|^https:\/\//, '')
-        var parts = noprefix.split('/');
-        if (parts.length > 1 && parts[parts.length != '']) {
-          var filename = parts[parts.length - 1];
-        } else {
-          // Assume that if there is no part after hostname, or no part after
-          // the final '/', then this must be an html file.
-          filename = noprefix + '.html';
-        }
+function handleURLSubmit(evt) {
+  // Trigger the GET request when submit if clicked in the URL form.
+  evt.preventDefault();
+  var url = document.getElementById('url').value;
+  fetchRemoteResource(url, fetchSuccess, fetchError);
+}
 
-        var getSuccess = function(evt) {
-          var xhr = this;
-          sha256buffer(xhr.response)
-          .then(hashSuccess)
-          .catch(hashError)
-          var saveFile = document.getElementById('save-file');
-          saveFile.style.visibility='visible';
-          // Unbind previous Save File handler, if any.
-          saveFile.removeEventListener('click', clickSave);
-          clickSave = function() {
-            var link = document.createElement('a');
-            link.download = filename;
-            link.href = 'data:Application/octet-stream;base64,'
-              + bufferToBase64(xhr.response);
-            document.body.appendChild(link);
-            link.click();
-          };
-          saveFile.addEventListener('click', clickSave);
-        };
-        var getError = function() {
-          document.getElementById('errors').innerText =
-            'Problem fetching ' + uri + '. If this URL is valid, the remote '
-            + 'server probably does not allow cross-domain requests.';
-        };
-        getRemoteResource(uri, getSuccess, getError);
-      });
+// Utilities
 
-      var dropArea = document.getElementById('drop-area');
-      dropArea.addEventListener('dragover', function(evt) {
-        evt.preventDefault();
-        evt.dataTransfer.dropEffect = 'copy';
-      });
-      dropArea.addEventListener('drop', function(evt) {
-        evt.preventDefault();
-        var file = evt.dataTransfer.files[0];
-        hashFile(file);
-      });
-      dropArea.addEventListener('click', function(evt) {
-        evt.preventDefault();
-        var fileinput = document.getElementById('fileinput');
-        var doc = fileinput.ownerDocument;
-        var fileinputClick = doc.createEvent("MouseEvents");
-        fileinputClick.initEvent('click', true, true);
-        fileinput.dispatchEvent(fileinputClick, true);
-      });
+function bufferToHex(buffer) {
+  // Convert a buffer into a hexadecimal string.
+  // From https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest
+  var hexCodes = [];
+  var view = new DataView(buffer);
+  for (var i = 0; i < view.byteLength; i += 4) {
+    // Using getUint32 reduces the number of iterations needed (we process
+    // 4 bytes each time).
+    var value = view.getUint32(i);
+    // toString(16) will give the hex representation of the number without
+    // padding
+    var stringValue = value.toString(16);
+    // We use concatenation and slice for padding.
+    var padding = '00000000';
+    var paddedValue = (padding + stringValue).slice(-padding.length);
+    hexCodes.push(paddedValue);
+  }
+  return hexCodes.join("");
+}
 
-     
-    });
+function bufferToBase64(buffer) {
+  // Convert a buffer into a base64 string.
+  var str = '';
+  var bytes = new Uint8Array(buffer);
+  var len = bytes.byteLength;
+  for (var i = 0; i < len; i++) {
+      str += String.fromCharCode(bytes[i]);
+  }
+  return window.btoa(str);
+}
+
+function fetchRemoteResource(url, success, error) {
+  // Fetch a URL with a GET request, saving the response as a buffer.
+  var xhr = new XMLHttpRequest();
+  xhr.responseType = 'arraybuffer';
+  xhr.addEventListener('load', success);
+  xhr.addEventListener('error', error);
+  xhr.open('GET', url);
+  xhr.send();
+}
+
+function hashSuccess(hash) {
+  // Display the hash as a hex string.
+  var sha256 = bufferToHex(hash);
+  document.getElementById('sha256-hash').innerHTML =
+    '<h2>SHA-256 Hash</h2><p>' + sha256;
+}
+
+function hashError(err) {
+  // Display a generic hash error.
+  document.getElementById('errors').innerText = 'Error hashing file';
+}
+
+function hashFile(file) {
+  // Hash a File object.
+  var fileReader = new FileReader();
+  fileReader.addEventListener('load', function() {
+    crypto.subtle.digest("SHA-256", this.result)
+      .then(hashSuccess)
+      .catch(hashError);
+  });
+  fileReader.readAsArrayBuffer(file);
+}
+
+function fetchSuccess(evt) {
+  // Hash the fetched resource and set up the Save File handler.
+  var xhr = this;
+
+  crypto.subtle.digest("SHA-256", xhr.response)
+    .then(hashSuccess)
+    .catch(hashError);
+
+  var saveFile = document.getElementById('save-file');
+  saveFile.style.visibility='visible';
+  // Unbind previous Save File handler, if any.
+  saveFile.removeEventListener('click', saveFile.handleSaveFileClick);
+
+  saveFile.handleSaveFileClick = function() {
+    // Prompt the user to save the file.
+    var link = document.createElement('a');
+    link.download = filenameFromURL(xhr.responseURL);
+    link.href = 'data:Application/octet-stream;base64,' +
+      bufferToBase64(xhr.response);
+    // Firefox requires that the link exist on page before we can click.
+    document.body.appendChild(link);
+    link.click();
+  };
+
+  saveFile.addEventListener('click', saveFile.handleSaveFileClick);
+};
+
+function fetchError() {
+  // Display a URL fetch error.
+  document.getElementById('errors').innerText =
+    'Problem fetching ' + url + '. If this URL is valid, the remote ' +
+    'server probably does not allow cross-domain requests.';
+}
+
+function filenameFromURL(url) {
+  // Generate a reasonable filename for a given URL.
+  var noprefix = url.replace(/^http:\/\/|^https:\/\//, '');
+  var parts = noprefix.split('/');
+
+  if (parts.length > 1 && parts[parts.length !== '']) {
+    return parts[parts.length - 1];
+  } else {
+    // Assume that if there is no part after hostname, or no part after
+    // the final '/', then this must be an html file.
+    return noprefix + '.html';
+  }
+}
+
     </script>
   </head>
   <body>
@@ -224,8 +260,8 @@
     <p><input type="file" id="fileinput" />
     <h2>Hash a File from a Website</h2>
     <p><a href="#" class="tooltip" data-tooltip="Websites which enable Cross Origin Resource Sharing (CORS) can be accessed by this tool. However, most websites do not enable CORS.">Certain websites</a> may allow this tool to retrieve a file directly, without you having to save it to your computer first.
-    <form action="" id="uri-form" name="uri-form">
-      <p>URL: <input id="uri"></input>
+    <form action="" id="url-form" name="url-form">
+      <p>URL: <input id="url"></input>
       <input type="submit" value="Submit">
       <input id="save-file" type="button" value="Save File">
     </form>
