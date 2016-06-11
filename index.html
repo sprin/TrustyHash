@@ -83,13 +83,13 @@
 // Set up handlers on load.
 window.addEventListener("load", function () {
   // Compute the hash when a selection is made with the file input
-  var fileinput = document.getElementById('fileinput')
+  var fileinput = document.getElementById('fileinput');
   fileinput.addEventListener('change', handleFileInputChange);
 
   // Compute the hash when a file is dropped into the drop area
   var dropArea = document.getElementById('drop-area');
-  dropArea.addEventListener('dragover', handleDropAreaDragover)
-  dropArea.addEventListener('drop', handleDropAreaDrop)
+  dropArea.addEventListener('dragover', handleDropAreaDragover);
+  dropArea.addEventListener('drop', handleDropAreaDrop);
 
   // Open the file input prompt when the drop area is clicked
   dropArea.addEventListener('click', handleDropAreaClick);
@@ -142,6 +142,8 @@ function handleURLSubmit(evt) {
   // Trigger the GET request when submit is clicked in the URL form.
   evt.preventDefault();
   clearResult();
+  var saveFile = document.getElementById('save-file');
+  setHidden(saveFile);
   var url = document.getElementById('url').value;
 
   fetchRemoteResource(url)
@@ -172,7 +174,7 @@ function setUpSaveFile(xhr) {
   };
 
   saveFile.addEventListener('click', saveFile.handleSaveFileClick);
-};
+}
 
 // Utilities
 
@@ -291,7 +293,10 @@ function showFetchError() {
 }
 
 function setVisible(node) {
-  node.style.visibility='visible';
+  node.style.visibility = 'visible';
+}
+function setHidden(node) {
+  node.style.visibility = 'hidden';
 }
 
 function showSavePrompt(filename, buffer) {
