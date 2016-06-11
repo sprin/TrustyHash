@@ -205,7 +205,13 @@ function fetchRemoteResource(url) {
   return new Promise(function(resolve, reject) {
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'arraybuffer';
-    xhr.addEventListener('load', function() { resolve(xhr); });
+    xhr.addEventListener('load', function() { 
+      if (xhr.status == 200) {
+        resolve(xhr);
+      } else {
+        reject(Error('Non-200 Status Code'));
+      }
+    });
     xhr.addEventListener('error', reject);
     xhr.open('GET', url);
     xhr.send();
