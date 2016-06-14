@@ -82,6 +82,8 @@
     <script>
 // Set up handlers on load.
 window.addEventListener("load", function () {
+  // Localize the interface.
+  localizeDOM();
   // Compute the hash when a selection is made with the file input
   var fileinput = document.getElementById('fileinput');
   fileinput.addEventListener('change', handleFileInputChange);
@@ -279,7 +281,8 @@ function clearResult() {
 function showHashError(err) {
   // Display a generic hash error.
   document.getElementById('result').innerHTML =
-    '<h2>Error</h2><p>Error hashing file';
+    '<h2>' + gettext('error-header') + '</h2>' +
+    '<p>' + gettext('error-hash');
 }
 
 function showFetchError() {
@@ -287,9 +290,8 @@ function showFetchError() {
   var url = document.getElementById('url').value;
 
   document.getElementById('result').innerHTML =
-    '<h2>Error</h2><p>Problem fetching ' + url +
-    '<br>If this URL is valid, the remote ' +
-    'server probably does not allow cross-domain requests.';
+    '<h2>' + gettext('error-header') + '</h2>' +
+    '<p>' + gettext('error-fetch', url);
 }
 
 function setVisible(node) {
@@ -311,20 +313,69 @@ function showSavePrompt(filename, buffer) {
   document.body.appendChild(link);
   link.click();
 }
+
+// Internationalization and Localization
+
+var localization = {
+  "en": {
+    "title": "SHA-256 Hash Calculator",
+    "description": "This tool computes SHA-256 hashes directly in your browser. Files are not sent to any server.",
+    "local-header": "Hash a File from Your Computer",
+    "drop-area-label": "Drop file here, or click to browse",
+    "remote-header": "Hash a File from a Website",
+    "remote-label": "<a href=\"#\" class=\"tooltip\" data-tooltip=\"Websites which enable Cross Origin Resource Sharing (CORS) can be accessed by this tool. However, most websites do not enable CORS.\">Certain websites</a> may allow this tool to retrieve a file directly, without you having to save it to your computer first.",
+    "submit-btn": "Submit",
+    "save-file-btn": "Save File",
+    "result-header": "SHA-256 Hash",
+    "error-header": "Error",
+    "error-hash": "Error hashing file",
+    "error-fetch": "Error fetching {}<br>If this URL is valid, the remote server probably does not allow cross-domain requests."
+  }
+}
+
+var lang = 'en';
+
+function gettext(msgid) {
+  // Translate the msgid into a localized string and perform string substition.
+  // The two characters '{}' are used as a format token. Additional arguments
+  // will be substituted for the format tokens in order.
+  var msgstr = localization[lang][msgid];
+  if (msgstr == null) {
+    throw Error("Attempted lookup on non-existent msgid: " + msgid);
+  }
+  // Perform string substitutions
+  for (var i = 1; i < arguments.length; i++) {
+    msgstr = msgstr.replace(RegExp('{}'), arguments[i]);
+  }
+  return msgstr;
+}
+
+function localizeDOM() {
+  // Translate all localized elements in the DOM.
+  var elements = document.querySelectorAll("[data-l10n-id]");
+  for (var el of elements) {
+    var msgid = el.attributes['data-l10n-id'].value;
+    if (el.nodeName == 'INPUT') {
+      el.value = gettext(msgid);
+    } else {
+      el.innerHTML = gettext(msgid);
+    }
+  }
+}
     </script>
   </head>
   <body>
-    <h1>SHA-256 Hash Calculator</h1>
-    <p>This tool computes SHA-256 hashes directly in your browser. Files are not sent to any server.
-    <h2>Hash a File from Your Computer</h2>
-    <div id="drop-area">Drop file here, or click to browse</div>
+    <h1 data-l10n-id="title">SHA-256 Hash Calculator</h1>
+    <p data-l10n-id="description">This tool computes SHA-256 hashes directly in your browser. Files are not sent to any server.
+    <h2 data-l10n-id="local-header">Hash a File from Your Computer</h2>
+    <div data-l10n-id="drop-area-label" id="drop-area">Drop file here, or click to browse</div>
     <p><input type="file" id="fileinput" />
-    <h2>Hash a File from a Website</h2>
-    <p><a href="#" class="tooltip" data-tooltip="Websites which enable Cross Origin Resource Sharing (CORS) can be accessed by this tool. However, most websites do not enable CORS.">Certain websites</a> may allow this tool to retrieve a file directly, without you having to save it to your computer first.
+    <h2 data-l10n-id="remote-header">Hash a File from a Website</h2>
+    <p data-l10n-id="remote-label"><a href="#" class="tooltip" data-tooltip="Websites which enable Cross Origin Resource Sharing (CORS) can be accessed by this tool. However, most websites do not enable CORS.">Certain websites</a> may allow this tool to retrieve a file directly, without you having to save it to your computer first.
     <form action="" id="url-form" name="url-form">
       <p>URL: <input id="url"></input>
-      <input type="submit" value="Submit">
-      <input id="save-file" type="button" value="Save File">
+      <input data-l10n-id="submit-btn" type="submit" value="Submit">
+      <input data-l10n-id="save-file-btn" id="save-file" type="button" value="Save File">
     </form>
     <div id="result"></div>
   </body>
