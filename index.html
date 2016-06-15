@@ -291,7 +291,7 @@ function showFetchError() {
 
   document.getElementById('result').innerHTML =
     '<h2>' + gettext('error-header') + '</h2>' +
-    '<p>' + gettext('error-fetch', url);
+    '<p>' + gettext('error-fetch', {'url': url});
 }
 
 function setVisible(node) {
@@ -329,7 +329,7 @@ var localization = {
     "result-header": "SHA-256 Hash",
     "error-header": "Error",
     "error-hash": "Error hashing file",
-    "error-fetch": "Error fetching {}<br>If this URL is valid, the remote server probably does not allow cross-domain requests."
+    "error-fetch": "Error fetching {url}<br>If this URL is valid, the remote server probably does not allow cross-domain requests."
   }
 }
 
@@ -337,15 +337,23 @@ var lang = 'en';
 
 function gettext(msgid) {
   // Translate the msgid into a localized string and perform string substition.
-  // The two characters '{}' are used as a format token. Additional arguments
-  // will be substituted for the format tokens in order.
+  // Format tokens for string substitution are expressed as { ... }, where the
+  // string inside the brackets is the key of the substitution string.
+  // Values are looked up from the second argument, a key/value Object.
   var msgstr = localization[lang][msgid];
   if (msgstr == null) {
     throw Error("Attempted lookup on non-existent msgid: " + msgid);
   }
-  // Perform string substitutions
-  for (var i = 1; i < arguments.length; i++) {
-    msgstr = msgstr.replace(RegExp('{}'), arguments[i]);
+  // Perform token substitutions
+  if (arguments.length > 1) {
+    var subs = arguments[1];
+    for (var key in subs) {
+       msgstr = msgstr.replace(RegExp('{'+ key + '}'), subs[key]);
+    }
+  }
+  // Check to see that all format tokens in string have been replaced.
+  if (/{.+\}/.test(msgstr)) {
+    throw Error("Unmatched tokens when localizing " + msgid + ": " + msgstr);
   }
   return msgstr;
 }
