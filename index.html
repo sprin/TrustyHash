@@ -177,7 +177,11 @@ function handleURLSubmit(evt) {
   clearResult();
   var saveFile = document.getElementById('save-file');
   setHidden(saveFile);
-  var url = normalizeURL(document.getElementById('url').value);
+  var url = document.getElementById('url').value;
+  if (url == '') {
+    return;
+  }
+  var url = normalizeURL(url)
 
 
   fetchRemoteResource(url)
@@ -261,9 +265,26 @@ function fetchRemoteResource(url) {
         reject(Error('Non-200 Status Code'));
       }
     });
-    xhr.addEventListener('error', reject);
+    function onerror(e) {
+      // Browser may have blocked request due to mixed content
+      if (
+        url.substr(0,7) == 'http://'
+        && window.location.toString().substr(0,8) == 'https://'
+      ) {
+        reject(Error('Mixed content blocked'));
+      } else {
+        reject(e)
+      }
+    }
+    xhr.addEventListener('error', onerror)
     xhr.open('GET', url);
-    xhr.send();
+    // Must wrap call in try/catch because the error event is not correctly
+    // fired in Firefox when mixed-content requests are blocked.
+    try {
+      xhr.send();
+    } catch(e) {
+      onerror(e)
+    };
   });
 }
 
@@ -325,13 +346,21 @@ function showHashError(err) {
     '<p>' + gettext('error-hash');
 }
 
-function showFetchError() {
-  // Display a URL fetch error.
+function showFetchError(e) {
   var url = normalizeURL(document.getElementById('url').value);
+  var errorMsg;
+
+  if (e.message == 'Mixed content blocked') {
+    // Display a message specific to mixed content errors.
+    errorMsg = 'error-mixed-content';
+  } else {
+    // Otherwise, display a generic fetch error.
+    errorMsg = 'error-fetch';
+  }
 
   document.getElementById('result').innerHTML =
     '<h2>' + gettext('error-header') + '</h2>' +
-    '<p>' + gettext('error-fetch', {'url': url});
+    '<p>' + gettext(errorMsg, {'url': url});
 }
 
 function setVisible(node) {
@@ -370,7 +399,8 @@ var localization = {
     "result-header": "SHA-256 Hash",
     "error-header": "Error",
     "error-hash": "Error hashing file",
-    "error-fetch": "Error fetching {url}<br>If this URL is valid, the remote server probably does not allow cross-domain requests."
+    "error-fetch": "Error fetching {url}<br>If this URL is valid, the remote server probably does not allow cross-domain requests.",
+    "error-mixed-content": "Error fetching {url}<br>Browser blocked HTTP request because this page was loaded over HTTPS. To work around this, save this page locally, open the local copy, and retry."
   },
   "es": {
     "languages": "IDIOMAS",
@@ -386,6 +416,7 @@ var localization = {
     "error-header": "Error",
     "error-hash": "Error al calcular de hash",
     "error-fetch": "Error al descargar {url}<br>Si este URL es valido, probablemente el servidor remoto no permite peticiones cross-domain.",
+    "error-mixed-content": "Error al descargar {url}<br>El navegador bloqueó el petición HTTP porque esta pagina fue cargado con HTTPS. Para solucionar este problema, guarda esta pagina localmente, abre la copia, y reintente."
   }
 }
 

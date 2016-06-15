@@ -54,6 +54,15 @@ In the interests of standardization and keeping things simple for the user,
 only SHA-256 will be shown. A possible addition to this project is to allow
 the user to select other hash algorithms, with SHA-256 remaining the default.
 
+## Limitations
+
+When the application is retrieved on an HTTPS connection, the application
+cannot fetch HTTP URLs due to restrictions against [mixed active
+content](https://developer.mozilla.org/en-US/docs/Security/Mixed_content#Mixed_active_content]).
+A workaround for this is to save the page locally and open the local copy in
+the browser.
+
+
 ## License
 
 MIT
