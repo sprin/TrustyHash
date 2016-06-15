@@ -365,18 +365,18 @@ var localization = {
   },
   "es": {
     "languages": "IDIOMAS",
-    "title": "SHA-256",
-    "description": "",
-    "local-header": "",
-    "drop-area-label": "",
-    "remote-header": "",
-    "remote-label": "",
-    "submit-btn": "",
-    "save-file-btn": "",
-    "result-header": "",
-    "error-header": "",
-    "error-hash": "",
-    "error-fetch": "",
+    "title": "Calculador de Hash SHA-256",
+    "description": "Calcula los hashes SHA-256 directamente en el navegador. No se envian los archivos a ningún servidor.",
+    "local-header": "Calcula el hash de un archivo local",
+    "drop-area-label": "Solta un archivo aquí, o haga clic para buscar",
+    "remote-header": "Calcula el hash de un sitio web",
+    "remote-label": "<a href=\"#\" class=\"tooltip\" data-tooltip=\"Se puede ser acceder a sitios web con esta calculador que son configurados con Cross Origin Resource Sharing (CORS). Sin embargo, la mayoria de los sitios no son configurados con CORS.\">Algunos sitios web</a> podría permitir descargar directamenta.",
+    "submit-btn": "Enviar",
+    "save-file-btn": "Guardar",
+    "result-header": "Hash SHA-256",
+    "error-header": "Error",
+    "error-hash": "Error al calcular de hash",
+    "error-fetch": "Error al descargar {url}<br>Si este URL es valido, probablemente el servidor remoto no permite peticiones cross-domain.",
   }
 }
 
@@ -420,6 +420,7 @@ function gettext(msgid) {
 
 function localizeDOM() {
   // Translate all localized elements in the DOM.
+  clearResult();
   var elements = document.querySelectorAll("[data-l10n-id]");
   for (var el of elements) {
     var msgid = el.attributes['data-l10n-id'].value;
