@@ -177,7 +177,8 @@ function handleURLSubmit(evt) {
   clearResult();
   var saveFile = document.getElementById('save-file');
   setHidden(saveFile);
-  var url = document.getElementById('url').value;
+  var url = normalizeURL(document.getElementById('url').value);
+
 
   fetchRemoteResource(url)
     .then(function(xhr) {
@@ -296,6 +297,14 @@ function filenameFromURL(url) {
   }
 }
 
+function normalizeURL(url) {
+  // Add http:// protocol if no protocol is supplied.
+  if (!/^http:\/\/|^https:\/\//.test(url)) {
+    return 'http://' + url;
+  }
+  return url;
+}
+
 // DOM mutation
 
 function showHash(hash) {
@@ -318,7 +327,7 @@ function showHashError(err) {
 
 function showFetchError() {
   // Display a URL fetch error.
-  var url = document.getElementById('url').value;
+  var url = normalizeURL(document.getElementById('url').value);
 
   document.getElementById('result').innerHTML =
     '<h2>' + gettext('error-header') + '</h2>' +
