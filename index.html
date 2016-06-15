@@ -5,6 +5,43 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SHA-256 Hash Calculator</title>
+    <script>
+    /*
+    This is free Javascript licensed under the MIT (Expat) License.
+
+    Source and documentation:
+    https://github.com/sprin/client-side-hash-calculator/
+
+    @licstart  The following is the entire license notice for the
+    JavaScript code in this page.
+
+    Copyright (C) 2016 Steffen Prince
+
+    Permission is hereby granted, free of charge, to any person
+    obtaining a copy of this software and associated documentation
+    files (the "Software"), to deal in the Software without
+    restriction, including without limitation the rights to use,
+    copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following
+    conditions:
+
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+    OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+    HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+    OTHER DEALINGS IN THE SOFTWARE.
+
+    @licend  The above is the entire license notice
+    for the JavaScript code in this page.
+    */
+    </script>
     <style>
       html {
         box-sizing: border-box;
@@ -99,6 +136,14 @@
         opacity: 1;
         visibility: visible;
         margin-bottom: 12px;
+      }
+      #noscript-overlay {
+        position: absolute;
+        left: 0px;
+        background: #FFF;
+        width: 100%;
+        height: 100%;
+        z-index: 10000;
       }
     </style>
     <script>
@@ -482,17 +527,21 @@ function localizeDOM() {
       </ul>
     </div>
     <h1 data-l10n-id="title">SHA-256 Hash Calculator</h1>
-    <p data-l10n-id="description">This tool computes SHA-256 hashes directly in your browser. Files are not sent to any server.
-    <h2 data-l10n-id="local-header">Hash a File from Your Computer</h2>
-    <div data-l10n-id="drop-area-label" id="drop-area">Drop file here, or click to browse</div>
-    <p><input type="file" id="fileinput" />
-    <h2 data-l10n-id="remote-header">Hash a File from a Website</h2>
-    <p data-l10n-id="remote-label"><a href="#" class="tooltip" data-tooltip="Websites which enable Cross Origin Resource Sharing (CORS) can be accessed by this tool. However, most websites do not enable CORS.">Certain websites</a> may allow this tool to retrieve a file directly, without you having to save it to your computer first.
-    <form id="url-form" name="url-form">
-      <p>URL: <input id="url">
-      <input data-l10n-id="submit-btn" type="submit" value="Submit">
-      <input data-l10n-id="save-file-btn" id="save-file" type="button" value="Save File">
-    </form>
-    <div id="result"></div>
+    <p data-l10n-id="description">This tool computes SHA-256 hashes directly in your browser. Files are not sent to any server.</p>
+      <noscript>
+        <h1>Please enable JavaScript. This tool uses 100% free JavaScript. View page source for license and code.</h1>
+        <div id="noscript-overlay"></div>
+      </noscript>
+      <h2 data-l10n-id="local-header">Hash a File from Your Computer</h2>
+      <div data-l10n-id="drop-area-label" id="drop-area">Drop file here, or click to browse</div>
+      <p><input type="file" id="fileinput" />
+      <h2 data-l10n-id="remote-header">Hash a File from a Website</h2>
+      <p data-l10n-id="remote-label"><a href="#" class="tooltip" data-tooltip="Websites which enable Cross Origin Resource Sharing (CORS) can be accessed by this tool. However, most websites do not enable CORS.">Certain websites</a> may allow this tool to retrieve a file directly, without you having to save it to your computer first.
+      <form id="url-form" name="url-form">
+        <p>URL: <input id="url">
+        <input data-l10n-id="submit-btn" type="submit" value="Submit">
+        <input data-l10n-id="save-file-btn" id="save-file" type="button" value="Save File">
+      </form>
+      <div id="result"></div>
   </body>
 </html>
