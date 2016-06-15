@@ -380,7 +380,9 @@ var localization = {
   }
 }
 
-var lang = 'en';
+// Use the language of the browser as default.
+// For now, ignore everything after the first two characters.
+var lang = window.navigator.language.slice(0,2);
 
 function gettext(msgid) {
   // Translate the msgid into a localized string and perform string substition.
