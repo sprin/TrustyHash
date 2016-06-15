@@ -27,6 +27,31 @@
         font-size: 18px;
         margin: 0.2em 0 0.2em 0;
       }
+      #lang-widget {
+        cursor: pointer;
+        margin: 0.8em 0 0.2em 0;
+        font-size: 14px;
+        float: right;
+      }
+      #lang-widget>ul {
+        list-style-type: none;
+        padding: 5px 10px 5px 10px;
+        margin: 0px;
+        background: #FFF;
+        border: 1px solid #000;
+        -webkit-transition: .2s;
+        transition: .2s;
+        opacity: 0;
+        visibility: hidden;
+        display: block;
+      }
+      #lang-widget:hover>ul {
+        opacity: 1;
+        visibility: visible;
+      }
+      #lang-widget li {
+        padding: 3px;
+      }
       #url {
           width: 450px;
           margin: 0.8em 0 0.2em 0;
@@ -61,15 +86,12 @@
         top: 2em;
         display: block;
         position: absolute;
-      }
-      [data-tooltip]:after {
         width: 350px;
         padding: 10px;
         left: 0px;
         margin-bottom: 15px;
         background: #FFF;
         border: 1px solid #000;
-        border-radius: 3px;
         text-align: center;
         content: attr(data-tooltip);
       }
@@ -84,6 +106,10 @@
 window.addEventListener("load", function () {
   // Localize the interface.
   localizeDOM();
+  var langChoices = document.querySelectorAll("[data-lang]");
+  for (choice of langChoices) {
+    choice.addEventListener('click', handleLangClick);
+  }
   // Compute the hash when a selection is made with the file input
   var fileinput = document.getElementById('fileinput');
   fileinput.addEventListener('change', handleFileInputChange);
@@ -102,6 +128,11 @@ window.addEventListener("load", function () {
 });
 
 // Event handlers
+
+function handleLangClick() {
+  lang = this.dataset.lang;
+  localizeDOM();
+}
 
 function handleFileInputChange() {
   // Hash a local file when selected via file input.
@@ -318,6 +349,7 @@ function showSavePrompt(filename, buffer) {
 
 var localization = {
   "en": {
+    "languages": "LANGUAGES",
     "title": "SHA-256 Hash Calculator",
     "description": "This tool computes SHA-256 hashes directly in your browser. Files are not sent to any server.",
     "local-header": "Hash a File from Your Computer",
@@ -330,6 +362,21 @@ var localization = {
     "error-header": "Error",
     "error-hash": "Error hashing file",
     "error-fetch": "Error fetching {url}<br>If this URL is valid, the remote server probably does not allow cross-domain requests."
+  },
+  "es": {
+    "languages": "IDIOMAS",
+    "title": "SHA-256",
+    "description": "",
+    "local-header": "",
+    "drop-area-label": "",
+    "remote-header": "",
+    "remote-label": "",
+    "submit-btn": "",
+    "save-file-btn": "",
+    "result-header": "",
+    "error-header": "",
+    "error-hash": "",
+    "error-fetch": "",
   }
 }
 
@@ -373,6 +420,13 @@ function localizeDOM() {
     </script>
   </head>
   <body>
+    <div id="lang-widget">
+      <span data-l10n-id="languages">LANGUAGES</span>
+      <ul>
+        <li><a data-lang="en" href="#">English</a></li>
+        <li><a data-lang="es" href="#">Español</a></li>
+      <ul>
+    </div>
     <h1 data-l10n-id="title">SHA-256 Hash Calculator</h1>
     <p data-l10n-id="description">This tool computes SHA-256 hashes directly in your browser. Files are not sent to any server.
     <h2 data-l10n-id="local-header">Hash a File from Your Computer</h2>
