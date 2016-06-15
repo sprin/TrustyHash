@@ -4,6 +4,8 @@ This is a small HTML5 application that computes SHA-256 hashes on both local
 files and on remote URLs. It is targeted towards users who do not have or are
 unable to use the hash utilities on their local systems.
 
+[Use it here](https://sprin.github.io/client-side-hash-calculator/)
+
 ## Usage
 
 Local files can be opened from a file select dialog, or dragged into the "drop
