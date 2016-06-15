@@ -479,7 +479,7 @@ function localizeDOM() {
       <ul>
         <li><a data-lang="en" href="#">English</a></li>
         <li><a data-lang="es" href="#">Español</a></li>
-      <ul>
+      </ul>
     </div>
     <h1 data-l10n-id="title">SHA-256 Hash Calculator</h1>
     <p data-l10n-id="description">This tool computes SHA-256 hashes directly in your browser. Files are not sent to any server.
@@ -488,8 +488,8 @@ function localizeDOM() {
     <p><input type="file" id="fileinput" />
     <h2 data-l10n-id="remote-header">Hash a File from a Website</h2>
     <p data-l10n-id="remote-label"><a href="#" class="tooltip" data-tooltip="Websites which enable Cross Origin Resource Sharing (CORS) can be accessed by this tool. However, most websites do not enable CORS.">Certain websites</a> may allow this tool to retrieve a file directly, without you having to save it to your computer first.
-    <form action="" id="url-form" name="url-form">
-      <p>URL: <input id="url"></input>
+    <form id="url-form" name="url-form">
+      <p>URL: <input id="url">
       <input data-l10n-id="submit-btn" type="submit" value="Submit">
       <input data-l10n-id="save-file-btn" id="save-file" type="button" value="Save File">
     </form>
