@@ -130,7 +130,7 @@ window.addEventListener("load", function () {
 // Event handlers
 
 function handleLangClick() {
-  lang = this.dataset.lang;
+  setLang(this.dataset.lang);
   localizeDOM();
 }
 
@@ -382,7 +382,18 @@ var localization = {
 
 // Use the language of the browser as default.
 // For now, ignore everything after the first two characters.
-var lang = window.navigator.language.slice(0,2);
+var lang;
+setLang(window.navigator.language.slice(0,2));
+
+function setLang(newLang) {
+  // Set the language for localization, falling back to 'en' if there
+  // is no localization for the language.
+  if (newLang in localization) {
+    lang = newLang;
+  } else {
+    lang = 'en';
+  }
+}
 
 function gettext(msgid) {
   // Translate the msgid into a localized string and perform string substition.
