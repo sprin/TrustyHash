@@ -17,10 +17,10 @@ existence when the object was created" - [Lynch](http://www.clir.org/pubs/report
 "Friends don't let friends use unverified downloads."
 
 This fills a need for a verifiable, web-based hash calculator written in free
-JavaScript. If you already use the terminal-based hash utilities on your
+JavaScript. If you already use the command-line hash utilities on your
 system, you should continue to use those. This is targeted towards users who do
 not have or are unable to use the hash utilities on their local systems. While
-universal terminal-literacy is a good goal, the concepts of file integrity and
+universal command-line-literacy is a good goal, the concepts of file integrity and
 authenticity and the ability to use tools for verification are perhaps more
 fundamental.
 
@@ -243,14 +243,73 @@ as long as you promise you will make sure the code matches the above after you
 have saved it. One way to do this is to open the file in a browser, right-click
 and select "View Page Source".
 
-Open the `TrustyHashLite.html` file in your browser, click the file input button,
-select the `TrustyHash.html` you saved earlier. If the printed hex code matches
-the published hash values, congratulations, you just wrote a program that
-computes SHA-256 hashes *and* used it to validate TrustyHash!
+Open the `TrustyHashLite.html` file in your browser, click the file input
+button, select the `TrustyHash.html` you saved earlier. If the printed hex code
+matches the published hash values, congratulations, you just wrote a program
+that computes SHA-256 hashes *and* used it to validate TrustyHash!
 
 ### Hash Values
 
 TODO: Publish hash value for 1.0.0
+
+### Integrity of the Browser
+
+In order to trust the results of TrustyHash, we need to trust the browser that
+it runs in. Is the implementation of WebCryptoAPI to be trusted? Are extensions
+able to modify the result the user sees?
+
+If one is able to see the source of the browser and deterministic, reproducible
+builds are possible, then we can start to form a strong basis of trust. Closed
+source browsers must be excluded - the vendor is not able to assert a strong
+claim of *what* they are distributing. At best, they may be able to publish
+complete specifications for all functionality, but users still must trust the
+vendor ultimately to actually implement the specifications as claimed. The
+point is moot since no closed-source browser vendor publishes complete
+specifications anyway.
+
+Currently, open-source browsers are little better off. Deterministic builds are
+still a work-in-progress for all popular open-source browsers
+([Tor Browser](https://blog.torproject.org/category/tags/deterministic-builds),
+[Firefox](https://bugzilla.mozilla.org/show_bug.cgi?id=885777),
+[Chromium](https://bugs.chromium.org/p/chromium/issues/detail?id=314403).
+Without deterministic builds, we must still trust the vendor ultimately to
+build and distribute what they say they are building. If we trust the vendor
+when they say, "deterministic builds are hard, we are working on it", and we
+can trust them to secure their build environment, then we can take the signed
+hash values they publish to represent the objects built from the published
+sources.
+
+So then there are three realistic ways we might have a trusted browser on our
+systems:
+
+ - A verified open-source browser was bundled with our trusted operating system
+   distro.
+ - We installed an open-source browser from a trusted package manager that
+   handled checking verification for us.
+ - We downloaded the open-source browser directly from the vendor and checked
+   the signatures/hashes ourselves.
+
+The third possible way, which is only feasible for a tiny fraction of extremely
+diligent users, is to build the browser from source, rebuilding whenever
+security updates are pushed to users.
+
+Since the majority of browser users do not use an operating system that bundles
+a verified open-source browser nor supplies a package manager which can
+download and verify an open-source browser for them, this leaves manually
+verifying. Because no operating system makes it easy or obvious to verify
+signed downloads and awareness of the importance of verification is very low,
+we have to conclude that the majority of browser users have very little basis
+for trusting their browser. Similar arguments can be made for the operating
+system as a whole.
+
+So where does that leave us? Is running any program inside a browser with any
+degre of trust hopeless for the vast majority of users? I would say that we may
+be forced to accept some uncertainty that a program such as TrustyHash will
+produce the correct results in an untrusted browser. If we accept this
+uncertainty, we can use TrustyHash to bootstrap trust for a new browser or even
+operating system. This, I think, is the real value of TrustyHash - to bootstrap
+trust on a system by providing the best possible effort at producing trusted
+hash values in an accessible way.
 
 ## Deployment
 
@@ -260,9 +319,10 @@ the file under the web server root directory.
 ## Why only SHA-256?
 
 SHA-256 remains the de facto standard for verifying files via hash in 2016.
-The following projects have standardized on SHA-256 for verifying release
-materials:
+Here are some popular projects have standardized on SHA-256 for verifying
+release materials:
 
+ - [Tor Browser](https://www.torproject.org/docs/verifying-signatures.html#BuildVerification)
  - [OpenBSD](http://man.openbsd.org/signify)
  - [FreeBSD](https://www.freebsd.org/releases/10.2R/signatures.html)
  - [Centos](http://mirror.centos.org/centos/7/isos/x86_64/sha256sum.txt)
