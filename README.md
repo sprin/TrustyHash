@@ -111,9 +111,9 @@ crypto.subtle.digest("SHA-256", this.result)
 .then(function(buffer) {
 var hexCodes = []
 var view = new DataView(buffer)
-for (var i = 0; i < view.byteLength; i += 4) {
-var stringValue = view.getUint32(i).toString(16)
-var paddedValue = ('00000000' + stringValue).slice(-8)
+for (var i = 0; i < view.byteLength; i += 1) {
+var stringValue = view.getUint8(i).toString(16)
+var paddedValue = ('0' + stringValue).slice(-2)
 hexCodes.push(paddedValue)}
 alert(hexCodes.join(""))})}}
 document.body.appendChild(fileinput)
@@ -192,24 +192,24 @@ var view = new DataView(buffer)
 We create a view so we can read the buffer in chunks.
 
 ```
-for (var i = 0; i < view.byteLength; i += 4) {
+for (var i = 0; i < view.byteLength; i += 1) {
 ```
 
-With each chunk...
+With each byte-size chunk...
 
 ```
-var stringValue = view.getUint32(i).toString(16)
+var stringValue = view.getUint8(i).toString(16)
 ```
 
 ...convert each chunk to a number and get a string, which is just something we
-can print.
+can print. The string will be one or two hex digits.
 
 ```
-var paddedValue = ('00000000' + stringValue).slice(-8)
+var paddedValue = ('0' + stringValue).slice(-2)
 ```
 
-To correctly print the string as a hex code, we need to add zeroes to the front
-in case the number is less than 8 digits.
+To correctly print the string as a hex code, we need to add a zero to the front
+in case the number is less than two hex digits, keeping the last two digits.
 
 ```
 hexCodes.push(paddedValue)}
