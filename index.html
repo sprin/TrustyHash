@@ -74,20 +74,11 @@
         list-style-type: none;
         padding: 5px 10px 5px 10px;
         margin: 0px;
-        background: #FFF;
-        border: 1px solid #000;
-        -webkit-transition: .2s;
-        transition: .2s;
-        opacity: 0;
-        visibility: hidden;
         display: block;
-      }
-      #lang-widget:hover>ul {
-        opacity: 1;
-        visibility: visible;
       }
       #lang-widget li {
         padding: 3px;
+        display: inline;
       }
       #lang-widget a {
         text-decoration: none;
@@ -241,7 +232,7 @@ function handleURLSubmit(evt) {
   evt.preventDefault();
   clearResult();
   var saveFile = document.getElementById('save-file');
-  setHidden(saveFile);
+  saveFile.style.visibility = 'hidden';
   var url = document.getElementById('url').value;
   if (url == '') {
     return;
@@ -266,7 +257,7 @@ function handleURLSubmit(evt) {
 function setUpSaveFile(xhr) {
   // Set up the Save File.
   var saveFile = document.getElementById('save-file');
-  setVisible(saveFile);
+  saveFile.style.visibility = 'visible';
   // Unbind previous Save File handler, if any.
   saveFile.removeEventListener('click', saveFile.handleSaveFileClick);
 
@@ -283,7 +274,7 @@ function checkIfLocalCopy() {
   // Hide the description, including a recommendation to save if the app
   // has been loaded from a local file.
   if (/^file:\/\//.test(window.location.toString())) {
-    setHidden(document.getElementById('description'));
+    document.getElementById('description').style.visibility = 'hidden';
   }
 }
 
@@ -436,13 +427,6 @@ function showFetchError(e) {
     '<p>' + gettext(errorMsg, {'url': url});
 }
 
-function setVisible(node) {
-  node.style.visibility = 'visible';
-}
-function setHidden(node) {
-  node.style.visibility = 'hidden';
-}
-
 function showSavePrompt(filename, buffer) {
   // Prompt the user to save the file.
   var link = document.createElement('a');
@@ -460,7 +444,6 @@ function showSavePrompt(filename, buffer) {
 
 var localization = {
   "en": {
-    "languages": "LANGUAGES",
     "title": "TrustyHash - Trustable Hash Calculator",
     "description": "This tool computes SHA-256 hashes directly in your browser. Files are not sent to any server.<br>It's recommended to save this page and <a href=\"https://github.com/sprin/TrustyHash#trust\">verify the integrity before using</a>.",
     "local-header": "Hash a File from Your Computer",
@@ -477,7 +460,6 @@ var localization = {
     "footer": "Version 1.0.0<br>Free Software under MIT License<br>Read how this tool relates to trust, integrity, and authenticity at the <a href=\"https://github.com/sprin/TrustyHash\">TrustyHash homepage</a>."
   },
   "es": {
-    "languages": "IDIOMAS",
     "title": "TrustyHash - Calculadora Hash Confiable",
     "description": "Calcula los hashes SHA-256 directamente en el navegador. No se envian los archivos a ningún servidor.",
     "local-header": "Calcula el hash de un archivo local",
@@ -536,6 +518,14 @@ function gettext(msgid) {
 function localizeDOM() {
   // Translate all localized elements in the DOM.
   clearResult();
+
+  // Hide current language choice
+  var choices = document.querySelectorAll("[data-lang]");
+  for (var el of choices) {
+    el.style.display = 'inline';
+  }
+  document.querySelector("[data-lang=" + lang + "]").style.display = 'none'
+
   var elements = document.querySelectorAll("[data-l10n-id]");
   for (var el of elements) {
     var msgid = el.attributes['data-l10n-id'].value;
@@ -550,7 +540,6 @@ function localizeDOM() {
   </head>
   <body>
     <div id="lang-widget">
-      <span data-l10n-id="languages">LANGUAGES</span>
       <ul>
         <li><a data-lang="en" href="#">English</a></li>
         <li><a data-lang="es" href="#">Español</a></li>
