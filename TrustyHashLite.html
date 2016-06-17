@@ -5,7 +5,7 @@
 <script>
 document.querySelector('input').onchange = function(){
 var reader = new FileReader()
-reader.readAsArrayBuffer(this.files[0]);
+reader.readAsArrayBuffer(this.files[0])
 reader.onload = function(){
 crypto.subtle.digest("SHA-256", this.result)
 .then(function(buffer) {

@@ -21,7 +21,7 @@ JavaScript. If you already use the terminal-based hash utilities on your
 system, you should continue to use those. This is targeted towards users who do
 not have or are unable to use the hash utilities on their local systems. While
 universal terminal-literacy is a good goal, the concepts of file integrity and
-and authenticity and the ability to use tools for verification are perhaps more
+authenticity and the ability to use tools for verification are perhaps more
 fundamental.
 
 Integrity is the first link in secure systems, and key to determining
@@ -48,9 +48,10 @@ GET requests via
 [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS),
 the file will be downloaded to the client, with the option of saving locally.
 
-It's recommended to save the application, verify the intengrity, and use the
+It's recommended to save the application, verify the integrity, and use the
 saved copy from then on. To save from the browser, use "Save Page" > "Web Page,
-HTML Only". To verify, read the section on "Trust" below.
+HTML Only", and use a filename of `TrustyHash.html`. To verify, read the
+section on "Trust" below.
 
 ## Trust
 
@@ -136,7 +137,7 @@ Now a more-or-less line-by-line explanation:
 ```
 
 These lines declare an HTML document with a file input and a script. HTML
-technically requires a `head` element, but I'm trying to save you a bit of
+technically requires a `<head>` element, but I'm trying to save you a bit of
 typing. Now let's get into the JavaScript itself:
 
 ```
@@ -152,7 +153,7 @@ var reader = new FileReader()
 ...create a reader to read the file.
 
 ```
-reader.readAsArrayBuffer(this.files[0]);
+reader.readAsArrayBuffer(this.files[0])
 ```
 
 Read the file into memory.
@@ -173,15 +174,15 @@ Hash the buffer with SHA-256.
 .then(function(buffer) {
 ```
 
-When hashing finishes, we have an unprintable object...
+When hashing finishes, we have an unprintable object, called a buffer...
 
 ```
 var hexCodes = []
 ```
 
 ...that we want to turn in to printable hex codes, which is just a way to
-represent a number using 0 to 9 and 'a' to 'f'. Hex codes are the standard
-representation of SHA-256 hash values.
+represent a number using only the characters 0 to 9 and 'a' to 'f'. Hex codes
+are the standard representation of SHA-256 hash values.
 
 
 ```
@@ -231,18 +232,19 @@ screen. That's it!
 
 Oh, and we need these lines to formally close the HTML document.
 
-If you followed all that, put this code into a file called `simple.html` and
-open it up in your browser. I recommend re-typing, rather than copy-pasting,
-since there are a bunch of sneaky ways someone could trick you into
-copy-pasting something besides what you see on a web page. If creating HTML
-files by hand is a bit confusing, you can save [the file I created for
-you](https://raw.githubusercontent.com/sprin/client-side-hash-calculator/master/simple.html)
+If you followed all that, put this code into a file called
+`TrustyHashLite.html` and open it up in your browser. I recommend re-typing,
+rather than copy-pasting, since there are a bunch of sneaky ways someone could
+trick you into copy-pasting something besides what you see on a web page. If
+creating HTML files by hand is a bit confusing, you can save [the file I
+created for
+you](https://raw.githubusercontent.com/sprin/client-side-hash-calculator/master/TrustyHashLite.html)
 as long as you promise you will make sure the code matches the above after you
 have saved it. One way to do this is to open the file in a browser, right-click
 and select "View Page Source".
 
-Open the 'simple.html' file in your browser, click the file input button,
-select the 'TrustyHash.html' you saved earlier. If the printed hex code matches
+Open the `TrustyHashLite.html` file in your browser, click the file input button,
+select the `TrustyHash.html` you saved earlier. If the printed hex code matches
 the published hash values, congratulations, you just wrote a program that
 computes SHA-256 hashes *and* used it to validate TrustyHash!
 
