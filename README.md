@@ -5,9 +5,9 @@ computes SHA-256 hash values on both local files and on remote URLs, with a
 strong emphasis on a process that will allow you to trust the results. Works
 offline!
 
-Project Homepage: https://github.com/sprin/client-side-hash-calculator
+TrustyHash homepage: https://github.com/sprin/TrustyHash
 
-[Use it here](https://sprin.github.io/client-side-hash-calculator/)
+[Use it here](https://sprin.github.io/TrustyHash/)
 
 ## How is this useful?
 
@@ -46,7 +46,7 @@ Local files can be opened from a file select dialog, or dragged into the "drop
 area". Remote URLs can be entered, and if the remote server allows cross-origin
 GET requests via
 [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS),
-the file will be downloaded to the client, with the option of saving locally.
+the file will be downloaded to the browser, with the option of saving locally.
 
 It's recommended to save the application, verify the integrity, and use the
 saved copy from then on. To save from the browser, use "Save Page" > "Web Page,
@@ -238,7 +238,7 @@ rather than copy-pasting, since there are a bunch of sneaky ways someone could
 trick you into copy-pasting something besides what you see on a web page. If
 creating HTML files by hand is a bit confusing, you can save [the file I
 created for
-you](https://raw.githubusercontent.com/sprin/client-side-hash-calculator/master/TrustyHashLite.html)
+you](https://raw.githubusercontent.com/sprin/TrustyHash/master/TrustyHashLite.html)
 as long as you promise you will make sure the code matches the above after you
 have saved it. One way to do this is to open the file in a browser, right-click
 and select "View Page Source".
