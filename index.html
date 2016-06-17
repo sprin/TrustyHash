@@ -171,6 +171,10 @@ window.addEventListener("load", function () {
   for (choice of langChoices) {
     choice.addEventListener('click', handleLangClick);
   }
+
+  // Check if app loaded from local copy, and hide reminder to save if local.
+  checkIfLocalCopy();
+
   // Compute the hash when a selection is made with the file input
   var fileinput = document.getElementById('fileinput');
   fileinput.addEventListener('change', handleFileInputChange);
@@ -273,6 +277,14 @@ function setUpSaveFile(xhr) {
   };
 
   saveFile.addEventListener('click', saveFile.handleSaveFileClick);
+}
+
+function checkIfLocalCopy() {
+  // Hide the description, including a recommendation to save if the app
+  // has been loaded from a local file.
+  if (/^file:\/\//.test(window.location.toString())) {
+    setHidden(document.getElementById('description'));
+  }
 }
 
 // Utilities
@@ -450,7 +462,7 @@ var localization = {
   "en": {
     "languages": "LANGUAGES",
     "title": "TrustyHash - Trustable Hash Calculator",
-    "description": "This tool computes SHA-256 hashes directly in your browser. Files are not sent to any server.<br>It's recommended to save this page and <a href=\"https://github.com/sprin/TrustyHash#trust\">verify the integrity before using.</a>",
+    "description": "This tool computes SHA-256 hashes directly in your browser. Files are not sent to any server.<br>It's recommended to save this page and <a href=\"https://github.com/sprin/TrustyHash#trust\">verify the integrity before using</a>.",
     "local-header": "Hash a File from Your Computer",
     "drop-area-label": "Drop file here, or click to browse",
     "remote-header": "Hash a File from a Website",
@@ -545,7 +557,7 @@ function localizeDOM() {
       </ul>
     </div>
     <h1 data-l10n-id="title">TrustyHash - Trustable Hash Calculator</h1>
-    <p data-l10n-id="description">This tool computes SHA-256 hashes directly in your browser. Files are not sent to any server.</p>
+    <p data-l10n-id="description" id="description">This tool computes SHA-256 hashes directly in your browser. Files are not sent to any server.<br>It's recommended to save this page and <a href=\"https://github.com/sprin/TrustyHash#trust\">verify the integrity before using</a></p>
       <noscript>
         <h1>Please enable JavaScript. This tool uses 100% free JavaScript. View page source for license and code.</h1>
         <h2>Version 1.0.0<br>Learn how to verify the integrity and authenticity of this tool at the <a href="https://github.com/sprin/TrustyHash">TrustyHash homepage</a>.</h2>
